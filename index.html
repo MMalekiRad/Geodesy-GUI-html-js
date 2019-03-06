@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="assets/bootstrap.min.css">
+    <title>Geodesy GUI</title>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center mb-4">
+        <div class="col">
+            <div class="display-4 text-center p-2">Geodesy GUI</div>
+        </div>
+    </div>
+    <div class="row justify-content-center mb-5">
+        <div class="col">
+            <form action="" method="post">
+                <div class="form-group">
+                    <input class="form-control m-2" type="number"
+                           placeholder="phi" id="phi" name="">
+
+                    <input class="form-control m-2" type="number"
+                           placeholder="lambda" id="lambda" name="">
+
+                    <input class="form-control m-2" type="number"
+                           placeholder="h" id="h" name="">
+                </div>
+                <hr>
+                <div class="form-group">
+                    <input id="x0" class="form-control m-2" type="number"
+                           placeholder="x0" name="x0" value="0">
+
+                    <input id="y0" class="form-control m-2" type="number"
+                           placeholder="y0" name="y0" value="0">
+
+                    <input id="z0" class="form-control m-2" type="number"
+                           placeholder="z0" name="z0" value="0">
+                </div>
+                <hr>
+                <label for="dist-select"></label>
+                <select class="form-control" id="dist-select">
+                    <option>mm</option>
+                    <option>cm</option>
+                    <option>m</option>
+                </select>
+                <label for="angle-select"></label>
+                <select class="form-control" id="angle-select">
+                    <option>D</option>
+                    <option>G</option>
+                    <option>R</option>
+                </select>
+                <hr>
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="exampleRadios[]"
+                           id="exampleRadios1" value="option1"
+                           checked>
+                    <label class="form-check-label" for="exampleRadios1">
+                        WGS841984
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="exampleRadios[]"
+                           id="exampleRadios2" value="option2">
+                    <label class="form-check-label" for="exampleRadios2">
+                        Helmert1906
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="exampleRadios[]"
+                           id="exampleRadios3" value="option2">
+                    <label class="form-check-label" for="exampleRadios2">
+                        Hayford1910
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="exampleRadios[]"
+                           id="exampleRadios4" value="option2">
+                    <label class="form-check-label" for="exampleRadios2">
+                        Clarke1880
+                    </label>
+                </div>
+                <hr>
+                <div id="X" class="display-4"></div>
+                <div id="Y" class="display-4"></div>
+                <div id="Z" class="display-4"></div>
+                <hr>
+                <input id="submit" type="submit"
+                       name="submit" class="btn btn-block btn-primary">
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('submit').onclick = function (e) {
+        e.preventDefault();
+        let ph = document.getElementById('phi').value;
+        let lambda = document.getElementById('lambda').value;
+        let h = document.getElementById('h').value;
+
+        let xo = document.getElementById('x0').value;
+        let yo = document.getElementById('y0').value;
+        let zo = document.getElementById('z0').value;
+
+        let a, b, N, x, y, z, b1, h1, a1, N3, x2, y2, z2, h3, a3, b3, N2;
+        let r1 = document.getElementById('exampleRadios1');
+        let r2 = document.getElementById('exampleRadios2');
+        let r3 = document.getElementById('exampleRadios3');
+        let r4 = document.getElementById('exampleRadios4');
+        let angle_item = document.getElementById('angle-select');
+        let angle_index = angle_item.options[angle_item.selectedIndex].index;
+
+        let dist_item = document.getElementById('angle-select');
+        let dist_index = angle_item.options[dist_item.selectedIndex].index;
+
+        if (angle_index === 1) {
+            ph = (ph * 180);
+            lambda = (lambda * 180);
+        } else if (angle_index === 2) {
+            ph = (ph * 200);
+            lambda = (lambda * 200);
+        } else if (angle_index === 3) {
+        }
+
+        if (r1.checked) {
+            a = 6400000;
+            b = 6378590;
+        } else if (r2.checked) {
+            a = 6378388;
+            b = 6356911.946;
+        } else if (r3.checked) {
+            a = 6378200;
+            b = 6356818.17;
+        } else if (r4.checked) {
+            a = 6378249.145;
+            b = 6356514.870;
+        }
+
+        N = a ^ 2 / (b ^ 2 * (Math.sin(ph)) ^ 2 + a ^ 2 * (Math.cos(ph)) ^ 2) ^ .5;
+        x = (N + h) * Math.cos(ph) * Math.cos(lambda) + xo;
+        y = (N + h) * Math.cos(ph) * Math.sin(lambda) + yo;
+        z = (N * (b ^ 2 / a ^ 2) + h) * Math.sin(ph) + zo;
+        if (dist_index === 1) {
+            N = a ^ 2 / (b ^ 2 * (Math.sin(ph)) ^ 2 + a ^ 2 * (Math.cos(ph)) ^ 2) ^ .5;
+            x = (N + h) * Math.cos(ph) * Math.cos(lambda) + xo;
+            y = (N + h) * Math.cos(ph) * Math.sin(lambda) + yo;
+            z = (N * (b ^ 2 / a ^ 2) + h) * Math.sin(ph) + zo;
+        } else if (dist_index === 2) {
+            N1 = N * 100;
+            h1 = h * 100;
+            a1 = a * 100;
+            b1 = b * 100;
+            N2 = a ^ 2 / (b1 ^ 2 * (Math.sin(ph)) ^ 2 + a1 ^ 2 * (Math.cos(ph)) ^ 2) ^ .5;
+            x2 = (N1 + h) * Math.cos(ph) * Math.cos(lambda) + xo;
+            y2 = (N1 + h1) * Math.cos(ph) * Math.sin(lambda) + yo;
+            z2 = (N1 * (b1 ^ 2 / a1 ^ 2) + h) * Math.sin(ph) + zo;
+        } else if (dist_index === 3) {
+            N3 = N * 1000;
+            h3 = h * 1000;
+            a3 = a * 1000;
+            b3 = b * 1000;
+            N = a3 ^ 2 / (b3 ^ 2 * (Math.sin(ph)) ^ 2 + a3 ^ 2 * (Math.cos(ph)) ^ 2) ^ .5;
+            x = (N3 + h3) * Math.cos(ph) * Math.cos(lambda) + xo;
+            y = (N3 + h3) * Math.cos(ph) * Math.sin(lambda) + yo;
+            z = (N3 * (b3 ^ 2 / a3 ^ 2) + h3) * Math.sin(ph) + zo;
+
+        }
+
+        document.getElementById('X').innerHTML = "x: " + x;
+        document.getElementById('Y').innerHTML = "y: " + y;
+        document.getElementById('Z').innerHTML = "z: " + z;
+
+    }
+</script>
+</body>
+</html>
